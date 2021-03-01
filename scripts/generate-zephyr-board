@@ -2,6 +2,9 @@
 # pylint: disable=invalid-name
 """Generate a zephyr board from a litex export"""
 
+import os
+import sys
+
 from litex_zephyr_export.svd_parser import SvdParser
 
 SVD_PATH = "csr.svd"
@@ -12,12 +15,9 @@ def main():
     parser = SvdParser()
 
     try:
-        with open(SVD_PATH, "r") as svd_file:
-            svd = svd_file.read()
-            parser.parse(svd)
-
-    except FileNotFoundError as ex:
-        print(f"Could not open svd file {SVD_PATH}: {ex}")
+        parser.parse_file(SVD_PATH)
+    except FileNotFoundError:
+        sys.exit(os.EX_NOINPUT)
 
 
 if __name__ == "__main__":
