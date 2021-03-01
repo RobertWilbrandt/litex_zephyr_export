@@ -1,5 +1,6 @@
 """Parse a litex export in SVD format"""
 import logging
+import xml.etree.ElementTree
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,8 +16,18 @@ class SvdParser:
         """Parse an SVD export
 
         :param svd: Content of SVD export
-        :type svd: str"""
-        print(svd)
+        :type svd: str
+
+        :raise RuntimeError: If there are problems parsing the SVD export
+        """
+        try:
+            self.logger.info("Parsing SVD from xml...")
+            root = xml.etree.ElementTree.fromstring(svd)
+
+        except xml.etree.ElementTree.ParseError as ex:
+            raise RuntimeError(f"Could not parse SVD export: {ex}")
+
+        print(root)
 
     def parse_file(self, path):
         """Parse an SVD export
@@ -25,14 +36,10 @@ class SvdParser:
         :type path: path-like
 
         :raise FileNotFoundError: If path was not found
+        :raise RuntimeError: If there are problems parsing the SVD export
         """
         self.logger.info("Parsing SVD file %s", path)
 
-        try:
-            with open(path, "r") as svd_file:
-                svd = svd_file.read()
-                return self.parse(svd)
-
-        except FileNotFoundError as ex:
-            self.logger.error("Could not open svd file %s: %s", path, ex)
-            raise
+        with open(path, "r") as svd_file:
+            svd = svd_file.read()
+            return self.parse(svd)

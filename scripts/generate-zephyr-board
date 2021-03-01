@@ -16,8 +16,14 @@ def main():
 
     try:
         parser.parse_file(SVD_PATH)
-    except FileNotFoundError:
+
+    except FileNotFoundError as ex:
+        print(f"Could not open SVD export {SVD_PATH}: {ex}", file=sys.stderr)
         sys.exit(os.EX_NOINPUT)
+
+    except RuntimeError as ex:
+        print(f"Error while parsing {SVD_PATH}: {ex}", file=sys.stderr)
+        sys.exit(os.EX_DATAERR)
 
 
 if __name__ == "__main__":
