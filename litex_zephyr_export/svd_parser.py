@@ -2,6 +2,8 @@
 import logging
 import xml.etree.ElementTree
 
+from termcolor import colored
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -21,8 +23,15 @@ class SvdParser:
         :raise RuntimeError: If there are problems parsing the SVD export
         """
         try:
-            self.logger.info("Parsing SVD from xml...")
+            self.logger.info("Parsing SVD from xml")
             root = xml.etree.ElementTree.fromstring(svd)
+
+            peripherals = root.find("peripherals")
+            for periph in peripherals.findall("peripheral"):
+                self.logger.info(
+                    "Found peripheral %s",
+                    colored(periph.find("name").text, attrs=["underline"]),
+                )
 
         except xml.etree.ElementTree.ParseError as ex:
             raise RuntimeError(f"Could not parse SVD export: {ex}")
@@ -38,7 +47,7 @@ class SvdParser:
         :raise FileNotFoundError: If path was not found
         :raise RuntimeError: If there are problems parsing the SVD export
         """
-        self.logger.info("Parsing SVD file %s", path)
+        self.logger.debug("Parsing SVD file %s", path)
 
         with open(path, "r") as svd_file:
             svd = svd_file.read()
