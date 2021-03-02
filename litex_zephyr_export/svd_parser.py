@@ -33,6 +33,15 @@ class SvdParser:
                     colored(periph.find("name").text, attrs=["underline"]),
                 )
 
+            vendor_extensions = root.find("vendorExtensions")
+            constants = vendor_extensions.find("constants")
+            for constant in constants.findall("constant"):
+                self.logger.info(
+                    "Found constant %s=%s",
+                    colored(constant.get("name"), attrs=["underline"]),
+                    constant.get("value"),
+                )
+
         except xml.etree.ElementTree.ParseError as ex:
             raise RuntimeError(f"Could not parse SVD export: {ex}")
 
