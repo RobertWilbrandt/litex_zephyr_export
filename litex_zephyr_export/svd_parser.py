@@ -34,12 +34,20 @@ class SvdParser:
                 )
 
             vendor_extensions = root.find("vendorExtensions")
+
             constants = vendor_extensions.find("constants")
             for constant in constants.findall("constant"):
                 self.logger.info(
                     "Found constant %s=%s",
                     colored(constant.get("name"), attrs=["underline"]),
                     constant.get("value"),
+                )
+
+            memory_regions = vendor_extensions.find("memoryRegions")
+            for memory_region in memory_regions.findall("memoryRegion"):
+                self.logger.info(
+                    "Found memory region %s",
+                    colored(memory_region.find("name").text, attrs=["underline"]),
                 )
 
         except xml.etree.ElementTree.ParseError as ex:
