@@ -8,14 +8,11 @@ class SoC:
     :type name: str
     :param vendor: Vendor name
     :type vendor: str
-    :param description: SoC description or None
-    :type description: str
     """
 
-    def __init__(self, name, vendor, description):
+    def __init__(self, name, vendor):
         self.name = name
         self.vendor = vendor
-        self.description = description
 
         self.peripherals = []
         self.memory_regions = []
