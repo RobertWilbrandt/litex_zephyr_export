@@ -87,5 +87,25 @@ def parse_device(device_node):
 
     :return: SoC containing device-specific information
     :rtype: SoC
+    :raise RuntimeError: If the device_node content is not valid
     """
-    return SoC("name", "vendor")
+    vendor_node = device_node.find("vendor")
+    if vendor_node is None:
+        vendor_id_node = device_node.find("vendorID")
+        if vendor_id_node is None:
+            vendor = "custom"
+        else:
+            vendor = vendor_id_node.text
+    else:
+        vendor = vendor_node.text
+
+    name_node = device_node.find("name")
+    if name_node is None:
+        raise RuntimeError("Could not find required 'name' child of device tree")
+    name = name_node.text
+
+    series = device_node.find("series")
+    if series is not None:
+        name = series.text + "_" + name
+
+    return SoC(name=name, vendor=vendor)

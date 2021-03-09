@@ -32,3 +32,5 @@ class SoCDevicetreeExporter(FileExporter):
     def generate(self):
         """Generate SoC devicetree export"""
         self.logger.info("Generating SoC devicetree")
+        self.logger.info("name: %s", self.soc.name)
+        self.logger.info("vendor: %s", self.soc.vendor)
