@@ -9,6 +9,26 @@ from .soc import SoC
 logging.basicConfig(level=logging.INFO)
 
 
+def element_get_required_child(element, child):
+    """Get a required child element or fail if it doesn't exist
+
+    :param element: Node to get child from
+    :type element: xml.etree.ElementTree.Element
+    :param child: Name of child element to get
+    :type child: str
+
+    :return: Child element child of element
+    :rtype: xml.etree.ElementTree.Element
+    :raise RuntimeError: If child does not exist
+    """
+    result = element.find(child)
+    if result is None:
+        raise RuntimeError(
+            f"Could not find required child '{child}' of element '{element.tag}'"
+        )
+    return result
+
+
 class SvdParser:
     """Parse a litex export in SVD format"""
 
@@ -99,10 +119,7 @@ def parse_device(device_node):
     else:
         vendor = vendor_node.text
 
-    name_node = device_node.find("name")
-    if name_node is None:
-        raise RuntimeError("Could not find required 'name' child of device tree")
-    name = name_node.text
+    name = element_get_required_child(device_node, "name").text
 
     series = device_node.find("series")
     if series is not None:
