@@ -3,6 +3,8 @@ import logging
 
 from termcolor import colored
 
+from .devicetree_writer import DevicetreeWriter
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -32,24 +34,20 @@ class SoCDevicetreeExporter(FileExporter):
     def generate(self):
         """Generate SoC devicetree export"""
         self.logger.info("Generating SoC devicetree")
-        self.logger.info("name: %s", self.soc.name)
-        self.logger.info("vendor: %s", self.soc.vendor)
 
-        main_memory_region = self.soc.get_main_memory_region()
-        self.logger.info(
-            "Main memory region: 0x%x - 0x%x",
-            main_memory_region.base_addr,
-            main_memory_region.end(),
-        )
+        devicetree_writer = DevicetreeWriter()
 
-        csr_base_addr = self.soc.get_csr_base_addr()
-        self.logger.info("CSR base address: 0x%x", csr_base_addr)
+        memory_regions = devicetree_writer.add_node("memory_regions")
+        memory_regions.add_property("#address-cells", "<1>")
+        memory_regions.add_property("#size-cells", "<1>")
 
-        self.logger.info("Additional memory regions:")
-        for memory_region in self.soc.get_usable_memory_regions():
-            self.logger.info(
-                "- %s: 0x%x - 0x%x",
-                colored(memory_region.name, attrs=["underline"]),
-                memory_region.base_addr,
-                memory_region.end(),
+        for memory_region in [
+            self.soc.get_main_memory_region()
+        ] + self.soc.get_usable_memory_regions():
+            memory = memory_regions.add_node("memory", memory_region.base_addr)
+            memory.add_property("device_type", '"memory"')
+            memory.add_property(
+                "reg", f"<0x{memory_region.base_addr:08x} 0x{memory_region.size:08x}>"
             )
+
+        self.logger.info(devicetree_writer.write())
