@@ -1,4 +1,4 @@
-"""Setup of Beckhoff BK5120 CANopen bus coupler test"""
+"""Export litex SoC definitions to Zephyr board files"""
 
 import setuptools
 
