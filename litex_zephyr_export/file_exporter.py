@@ -34,3 +34,11 @@ class SoCDevicetreeExporter(FileExporter):
         self.logger.info("Generating SoC devicetree")
         self.logger.info("name: %s", self.soc.name)
         self.logger.info("vendor: %s", self.soc.vendor)
+
+        for memory_region in self.soc.memory_regions:
+            self.logger.info(
+                "- %s: 0x%x, 0x%x",
+                colored(memory_region.name, attrs=["underline"]),
+                memory_region.base_addr,
+                memory_region.size,
+            )

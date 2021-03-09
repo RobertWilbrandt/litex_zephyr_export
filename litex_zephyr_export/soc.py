@@ -25,14 +25,6 @@ class SoC:
         """
         self.peripherals += peripheral
 
-    def add_memory_region(self, memory_region):
-        """Add a memory region to this SoC configuration
-
-        :param memory_region: Memory region to be added
-        :type memory_region: MemoryRegion
-        """
-        self.memory_regions += memory_region
-
 
 class Peripheral:
     """The configuration of a single peripheral"""
@@ -42,7 +34,17 @@ class Peripheral:
 
 
 class MemoryRegion:
-    """One SoC memory region"""
+    """One SoC memory region
 
-    def __init__(self):
-        pass
+    :param name: Name of memory region
+    :type name: str
+    :param base_addr: Base address of memory region
+    :type base_addr: int
+    :param size: Size of memory region
+    :type size: int
+    """
+
+    def __init__(self, name, base_addr, size):
+        self.name = name
+        self.base_addr = base_addr
+        self.size = size

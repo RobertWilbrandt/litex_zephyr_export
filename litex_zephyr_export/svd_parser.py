@@ -4,7 +4,7 @@ import xml.etree.ElementTree
 
 from termcolor import colored
 
-from .soc import SoC
+from .soc import MemoryRegion, SoC
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,6 +27,22 @@ def element_get_required_child(element, child):
             f"Could not find required child '{child}' of element '{element.tag}'"
         )
     return result
+
+
+def parse_hex(text):
+    """Parse a hex number from text or fail
+
+    :param text: Text to parse hex number from
+    :type text: str
+
+    :return: Parsed hex number
+    :rtype: int
+    :raise RuntimeError: If text does not contain a valid hexadecimal number
+    """
+    try:
+        return int(text, 0)
+    except ValueError as ex:
+        raise RuntimeError(f"Could not parse hex number '{text}': {ex}")
 
 
 class SvdParser:
@@ -69,12 +85,16 @@ class SvdParser:
                     constant.get("value"),
                 )
 
-            memory_regions = vendor_extensions.find("memoryRegions")
+            memory_regions = element_get_required_child(
+                vendor_extensions, "memoryRegions"
+            )
             for memory_region in memory_regions.findall("memoryRegion"):
-                self.logger.info(
-                    "Found memory region %s",
-                    colored(memory_region.find("name").text, attrs=["underline"]),
+                name = element_get_required_child(memory_region, "name").text
+                base_addr = parse_hex(
+                    element_get_required_child(memory_region, "baseAddress").text
                 )
+                size = parse_hex(element_get_required_child(memory_region, "size").text)
+                result.memory_regions.append(MemoryRegion(name, base_addr, size))
 
             return result
 
