@@ -35,10 +35,21 @@ class SoCDevicetreeExporter(FileExporter):
         self.logger.info("name: %s", self.soc.name)
         self.logger.info("vendor: %s", self.soc.vendor)
 
-        for memory_region in self.soc.memory_regions:
+        main_memory_region = self.soc.get_main_memory_region()
+        self.logger.info(
+            "Main memory region: 0x%x - 0x%x",
+            main_memory_region.base_addr,
+            main_memory_region.end(),
+        )
+
+        csr_base_addr = self.soc.get_csr_base_addr()
+        self.logger.info("CSR base address: 0x%x", csr_base_addr)
+
+        self.logger.info("Additional memory regions:")
+        for memory_region in self.soc.get_usable_memory_regions():
             self.logger.info(
-                "- %s: 0x%x, 0x%x",
+                "- %s: 0x%x - 0x%x",
                 colored(memory_region.name, attrs=["underline"]),
                 memory_region.base_addr,
-                memory_region.size,
+                memory_region.end(),
             )
