@@ -4,6 +4,8 @@ import xml.etree.ElementTree
 
 from termcolor import colored
 
+from .soc import SoC
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -20,11 +22,15 @@ class SvdParser:
         :param svd: Content of SVD export
         :type svd: str
 
+        :return: Parsed SoC definition
+        :rtype: SoC
         :raise RuntimeError: If there are problems parsing the SVD export
         """
         try:
             self.logger.info("Parsing SVD from xml")
             root = xml.etree.ElementTree.fromstring(svd)
+
+            result = parse_device(root)
 
             peripherals = root.find("peripherals")
             for periph in peripherals.findall("peripheral"):
@@ -50,10 +56,10 @@ class SvdParser:
                     colored(memory_region.find("name").text, attrs=["underline"]),
                 )
 
+            return result
+
         except xml.etree.ElementTree.ParseError as ex:
             raise RuntimeError(f"Could not parse SVD export: {ex}")
-
-        print(root)
 
     def parse_file(self, path):
         """Parse an SVD export
@@ -61,6 +67,8 @@ class SvdParser:
         :param path: Path to exported file
         :type path: path-like
 
+        :return: Parsed SoC definition
+        :rtype: SoC
         :raise FileNotFoundError: If path was not found
         :raise RuntimeError: If there are problems parsing the SVD export
         """
@@ -69,3 +77,15 @@ class SvdParser:
         with open(path, "r") as svd_file:
             svd = svd_file.read()
             return self.parse(svd)
+
+
+def parse_device(device_node):
+    """Parse the SVD device tag and create a SoC configuration from it
+
+    :param device_node: SVD device node
+    :rtype device_node: xml.etree.ElementTree.Element
+
+    :return: SoC containing device-specific information
+    :rtype: SoC
+    """
+    return SoC("name", "vendor")
