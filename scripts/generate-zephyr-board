@@ -5,6 +5,7 @@
 import os
 import sys
 
+from litex_zephyr_export.exporter import Exporter
 from litex_zephyr_export.file_exporter import SoCDevicetreeExporter
 from litex_zephyr_export.svd_parser import SvdParser
 
@@ -17,8 +18,11 @@ def main():
 
     try:
         soc = parser.parse_file(SVD_PATH)
-        exporter = SoCDevicetreeExporter(soc)
-        exporter.generate()
+
+        exporter = Exporter()
+        exporter.add_file_exporter(SoCDevicetreeExporter(soc))
+
+        exporter.export()
 
     except FileNotFoundError as ex:
         print(f"Could not open SVD export {SVD_PATH}: {ex}", file=sys.stderr)
