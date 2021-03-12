@@ -1,8 +1,6 @@
 """Export a parsed SoC configuration"""
 import logging
 
-from termcolor import colored
-
 from .devicetree_writer import DevicetreeWriter
 
 logging.basicConfig(level=logging.INFO)
@@ -36,18 +34,26 @@ class SoCDevicetreeExporter(FileExporter):
         self.logger.info("Generating SoC devicetree")
 
         devicetree_writer = DevicetreeWriter()
-
-        memory_regions = devicetree_writer.add_node("memory_regions")
-        memory_regions.add_property("#address-cells", "<1>")
-        memory_regions.add_property("#size-cells", "<1>")
-
-        for memory_region in [
-            self.soc.get_main_memory_region()
-        ] + self.soc.get_usable_memory_regions():
-            memory = memory_regions.add_node("memory", memory_region.base_addr)
-            memory.add_property("device_type", '"memory"')
-            memory.add_property(
-                "reg", f"<0x{memory_region.base_addr:08x} 0x{memory_region.size:08x}>"
-            )
+        self.generate_memory_regions(devicetree_writer.add_node("memory_regions"))
 
         self.logger.info(devicetree_writer.write())
+
+    def generate_memory_regions(self, node):
+        """Generate memory regions node of devicetree
+
+        :param node: Node to fill with content
+        :type node: .devicetree_writer.Node
+        """
+
+        def generate_memory(node, region):
+            node.address = region.base_addr
+            node.add_property("device_type", '"memory"')
+            node.add_property("reg", f"<0x{region.base_addr:08x} 0x{region.size:08x}>")
+
+        node.add_property("#address-cells", "<1>")
+        node.add_property("#size-cells", "<1>")
+
+        for memory_region in self.soc.get_usable_memory_regions():
+            generate_memory(node.add_node("memory"), memory_region)
+
+        generate_memory(node.add_node("memory"), self.soc.get_main_memory_region())
