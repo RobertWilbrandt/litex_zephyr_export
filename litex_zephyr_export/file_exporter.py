@@ -46,6 +46,13 @@ class SoCDevicetreeExporter(FileExporter):
         """
         self.generate_memory_regions(node.add_node("memory_regions"))
 
+        node.add_property("#address-cells", "<1>")
+        node.add_property("#size-cells", "<1>")
+        node.add_property(
+            "compatible", f'"{self.soc.vendor.lower()},{self.soc.name.lower()}"'
+        )
+        node.add_property("ranges")
+
     def generate_memory_regions(self, node):
         """Generate memory regions node of devicetree
 
