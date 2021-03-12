@@ -52,6 +52,7 @@ class SoCDevicetreeExporter(FileExporter):
 
         node.add_property("#address-cells", "<1>")
         node.add_property("#size-cells", "<1>")
+        node.add_property("ranges")
 
         for memory_region in self.soc.get_usable_memory_regions():
             generate_memory(node.add_node("memory"), memory_region)

@@ -65,7 +65,7 @@ class Node:
         self.sub_nodes.append(new_node)
         return new_node
 
-    def add_property(self, name, value):
+    def add_property(self, name, value=None):
         """Add a property to this node
 
         :param name: Name of the property
@@ -90,7 +90,10 @@ class Node:
         sub_out = []
 
         for name, value in self.props:
-            sub_out.append(f"{name} = {value};")
+            if value is not None:
+                sub_out.append(f"{name} = {value};")
+            else:
+                sub_out.append(f"{name};")
 
         for sub_node in self.sub_nodes:
             sub_out += sub_node.write()
