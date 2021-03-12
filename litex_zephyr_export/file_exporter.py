@@ -34,9 +34,17 @@ class SoCDevicetreeExporter(FileExporter):
         self.logger.info("Generating SoC devicetree")
 
         devicetree_writer = DevicetreeWriter()
-        self.generate_memory_regions(devicetree_writer.add_node("memory_regions"))
+        self.generate_soc(devicetree_writer.add_node("soc"))
 
         self.logger.info(devicetree_writer.write())
+
+    def generate_soc(self, node):
+        """Generate SoC section of devicetree
+
+        :param node: Node to fill
+        :type node: .devicetree_writer.Node
+        """
+        self.generate_memory_regions(node.add_node("memory_regions"))
 
     def generate_memory_regions(self, node):
         """Generate memory regions node of devicetree
