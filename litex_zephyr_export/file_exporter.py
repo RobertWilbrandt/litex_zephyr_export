@@ -1,7 +1,7 @@
 """Export a parsed SoC configuration"""
 import logging
 
-from .devicetree_writer import DevicetreeWriter
+from .devicetree_writer import DevicetreeWriter, Node
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,45 +31,47 @@ class SoCDevicetreeExporter(FileExporter):
 
     def generate(self):
         """Generate SoC devicetree export"""
+
+        def generate_soc(soc):
+            def generate_memory_regions(soc):
+                mem_reg_node = Node("memory_regions")
+                mem_reg_node.add_property("#address-cells", "<1>")
+                mem_reg_node.add_property("#size-cells", "<1>")
+
+                def generate_memory(region):
+                    mem_node = Node("memory", region.base_addr)
+                    mem_node.add_property("device_type", '"memory"')
+                    mem_node.add_property(
+                        "reg", f"<0x{region.base_addr:08x} 0x{region.size:08x}>"
+                    )
+                    return mem_node
+
+                for memory_region in soc.get_usable_memory_regions():
+                    mem_reg_node.add_node(generate_memory(memory_region))
+
+                main_ram_region = generate_memory(soc.get_main_memory_region())
+                mem_reg_node.add_node(main_ram_region)
+
+                return mem_reg_node
+
+            soc_node = Node("soc")
+            soc_node.add_property("#address-cells", "<1>")
+            soc_node.add_property("#size-cells", "<1>")
+            soc_node.add_property(
+                "compatible", f'"{soc.vendor.lower()},{soc.name.lower()}"'
+            )
+            soc_node.add_property("ranges")
+
+            mem_reg_node = generate_memory_regions(soc)
+            soc_node.add_node(mem_reg_node)
+
+            return soc_node
+
         self.logger.info("Generating SoC devicetree")
 
         devicetree_writer = DevicetreeWriter()
-        self.generate_soc(devicetree_writer.add_node("soc"))
+
+        soc_node = generate_soc(self.soc)
+        devicetree_writer.add_node(soc_node)
 
         self.logger.info(devicetree_writer.write())
-
-    def generate_soc(self, node):
-        """Generate SoC section of devicetree
-
-        :param node: Node to fill
-        :type node: .devicetree_writer.Node
-        """
-        self.generate_memory_regions(node.add_node("memory_regions"))
-
-        node.add_property("#address-cells", "<1>")
-        node.add_property("#size-cells", "<1>")
-        node.add_property(
-            "compatible", f'"{self.soc.vendor.lower()},{self.soc.name.lower()}"'
-        )
-        node.add_property("ranges")
-
-    def generate_memory_regions(self, node):
-        """Generate memory regions node of devicetree
-
-        :param node: Node to fill with content
-        :type node: .devicetree_writer.Node
-        """
-
-        def generate_memory(node, region):
-            node.address = region.base_addr
-            node.add_property("device_type", '"memory"')
-            node.add_property("reg", f"<0x{region.base_addr:08x} 0x{region.size:08x}>")
-
-        node.add_property("#address-cells", "<1>")
-        node.add_property("#size-cells", "<1>")
-        node.add_property("ranges")
-
-        for memory_region in self.soc.get_usable_memory_regions():
-            generate_memory(node.add_node("memory"), memory_region)
-
-        generate_memory(node.add_node("memory"), self.soc.get_main_memory_region())

@@ -18,15 +18,13 @@ class DevicetreeWriter:
     def __init__(self):
         self.root = Node("/")
 
-    def add_node(self, name, address=None):
-        """Add a node to devicetree node and return it
+    def add_node(self, node):
+        """Add a child to the root node
 
-        :param name: Node name
-        :type name: str
-        :param address: Optional node address
-        :type address: int
+        :param node: Node to add
+        :type node: Node
         """
-        return self.root.add_node(name, address)
+        self.root.add_node(node)
 
     def write(self):
         """Write devicetree to string
@@ -53,17 +51,13 @@ class Node:
         self.sub_nodes = []
         self.props = []
 
-    def add_node(self, name, address=None):
-        """Adds a node as child to this one and return it
+    def add_node(self, node):
+        """Adds a node as subnode
 
-        :param name: New node name
-        :type name: str
-        :param address: Option address of new node
-        :type address: int
+        :param node: Node to add
+        :type node: Node
         """
-        new_node = Node(name, address)
-        self.sub_nodes.append(new_node)
-        return new_node
+        self.sub_nodes.append(node)
 
     def add_property(self, name, value=None):
         """Add a property to this node
