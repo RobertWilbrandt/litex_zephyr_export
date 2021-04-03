@@ -1,5 +1,11 @@
 """SoC configuration description that can be parsed from a litex export"""
 
+import logging
+
+from termcolor import colored
+
+logging.basicConfig(level=logging.INFO)
+
 
 class SoC:
     """A complete SoC configuration
@@ -14,6 +20,8 @@ class SoC:
         self.name = name
         self.vendor = vendor
 
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self.peripherals = []
         self.memory_regions = []
 
@@ -23,7 +31,10 @@ class SoC:
         :param peripheral: Peripheral to be added
         :type peripheral: Peripheral
         """
-        self.peripherals += peripheral
+        self.logger.info(
+            "Addded peripheral %s", colored(peripheral.name, attrs=["underline"])
+        )
+        self.peripherals.append(peripheral)
 
     def get_main_memory_region(self):
         """Get the main memory region to load the application to
@@ -80,10 +91,14 @@ class SoC:
 
 
 class Peripheral:
-    """The configuration of a single peripheral"""
+    """The configuration of a single peripheral
 
-    def __init__(self):
-        pass
+    :param name: Peripheral name
+    :type name: str
+    """
+
+    def __init__(self, name):
+        self.name = name
 
 
 class MemoryRegion:

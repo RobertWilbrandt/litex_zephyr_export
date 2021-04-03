@@ -4,7 +4,7 @@ import xml.etree.ElementTree
 
 from termcolor import colored
 
-from .soc import MemoryRegion, SoC
+from .soc import MemoryRegion, Peripheral, SoC
 
 logging.basicConfig(level=logging.INFO)
 
@@ -68,15 +68,14 @@ class SvdParser:
 
             result = parse_device(root)
 
+            # Parse peripherals
             peripherals = root.find("peripherals")
             for periph in peripherals.findall("peripheral"):
-                self.logger.info(
-                    "Found peripheral %s",
-                    colored(periph.find("name").text, attrs=["underline"]),
-                )
+                result.add_peripheral(Peripheral(periph.find("name").text))
 
             vendor_extensions = root.find("vendorExtensions")
 
+            # Parse constants
             constants = vendor_extensions.find("constants")
             for constant in constants.findall("constant"):
                 self.logger.info(
@@ -85,6 +84,7 @@ class SvdParser:
                     constant.get("value"),
                 )
 
+            # Parse memory regions
             memory_regions = element_get_required_child(
                 vendor_extensions, "memoryRegions"
             )
