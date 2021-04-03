@@ -44,6 +44,7 @@ class SoCDevicetreeExporter(FileExporter):
                     mem_node.add_property(
                         "reg", f"<0x{region.base_addr:08x} 0x{region.size:08x}>"
                     )
+                    mem_node.add_property("label", f'"{region.name.lower()}"')
                     return mem_node
 
                 main_ram_node = generate_memory(soc.get_main_memory_region())
