@@ -79,23 +79,32 @@ class Node:
         """
         out = []
 
+        # Create node name line
         label_str = f"{self.label}: " if self.label is not None else ""
         address_str = f"@{self.address:08x}" if self.address is not None else ""
         out.append(f"{label_str}{self.name}{address_str} {'{'}")
 
-        sub_out = []
+        sub_out = []  # Collect everything inside here so it gets indented appropriately
 
+        # Create entry for each property
         for name, value in self.props:
             if value is not None:
                 sub_out.append(f"{name} = {value};")
             else:
                 sub_out.append(f"{name};")
 
-        for sub_node in self.sub_nodes:
+        if len(self.props) > 0 and len(self.sub_nodes) > 0:
+            sub_out.append("")
+
+        # Create subnode entries
+        for i, sub_node in enumerate(self.sub_nodes):
+            if i != 0:
+                sub_out.append("")
             sub_out += sub_node.write()
 
         out += [indent(line, 1) for line in sub_out]
 
+        # Close node
         out.append("};")
 
         return out
