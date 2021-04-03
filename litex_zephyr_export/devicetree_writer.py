@@ -42,11 +42,14 @@ class Node:
     :type name: str
     :param address: Optional node address
     :type address: str
+    :param label: Optional label for node
+    :type label: str
     """
 
-    def __init__(self, name, address=None):
+    def __init__(self, name, address=None, label=None):
         self.name = name
         self.address = address
+        self.label = label
 
         self.sub_nodes = []
         self.props = []
@@ -76,10 +79,9 @@ class Node:
         """
         out = []
 
-        if self.address is None:
-            out.append(f"{self.name} {'{'}")
-        else:
-            out.append(f"{self.name}@{self.address:08x} {'{'}")
+        label_str = f"{self.label}: " if self.label is not None else ""
+        address_str = f"@{self.address:08x}" if self.address is not None else ""
+        out.append(f"{label_str}{self.name}{address_str} {'{'}")
 
         sub_out = []
 

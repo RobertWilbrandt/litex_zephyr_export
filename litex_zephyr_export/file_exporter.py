@@ -46,11 +46,12 @@ class SoCDevicetreeExporter(FileExporter):
                     )
                     return mem_node
 
+                main_ram_node = generate_memory(soc.get_main_memory_region())
+                main_ram_node.label = "main_ram"
+                mem_reg_node.add_node(main_ram_node)
+
                 for memory_region in soc.get_usable_memory_regions():
                     mem_reg_node.add_node(generate_memory(memory_region))
-
-                main_ram_region = generate_memory(soc.get_main_memory_region())
-                mem_reg_node.add_node(main_ram_region)
 
                 return mem_reg_node
 
