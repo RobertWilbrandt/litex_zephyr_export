@@ -39,8 +39,9 @@ class SoC:
         :type peripheral: Peripheral
         """
         self.logger.info(
-            "Addded peripheral %s",
+            "Addded peripheral %s at %s",
             colored(peripheral.name, "green", attrs=["underline"]),
+            colored(f"0x{peripheral.base_addr:08x}", attrs=["bold"]),
         )
         self.peripherals.append(peripheral)
 
@@ -77,10 +78,13 @@ class Peripheral:
 
     :param name: Peripheral name
     :type name: str
+    :param base_addr: Lowest address reserved or used by the peripheral
+    :type base_addr: int
     """
 
-    def __init__(self, name):
+    def __init__(self, name, base_addr):
         self.name = name
+        self.base_addr = base_addr
 
 
 class MemoryRegion:

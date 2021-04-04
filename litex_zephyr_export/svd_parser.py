@@ -78,7 +78,11 @@ class SvdParser:
             # Parse peripherals
             peripherals = root.find("peripherals")
             for periph in peripherals.findall("peripheral"):
-                result.add_peripheral(Peripheral(periph.find("name").text))
+                name = element_get_required_child(periph, "name").text
+                base_addr = parse_hex(
+                    element_get_required_child(periph, "baseAddress").text
+                )
+                result.add_peripheral(Peripheral(name, base_addr))
 
             vendor_extensions = root.find("vendorExtensions")
 
