@@ -11,32 +11,33 @@ class FileExporter:
 
     :param name: Name of this file exporter
     :type name: str
-    :param soc: Parsed SoC configuration
-    :type soc: soc.SoC
     """
 
-    def __init__(self, name, soc):
+    def __init__(self, name):
         self.name = name
-        self.soc = soc
 
 
 class SoCDevicetreeExporter(FileExporter):
     """Export a parsed configuration to a SoC device tree file
 
-    :param soc: Parsed SoC configuration
-    :type soc: soc.SoC
     :param log_level: Logging level to use
     :type log_level: int
     """
 
-    def __init__(self, soc, log_level=logging.INFO):
-        super().__init__("soc_devicetree_exporter", soc)
+    def __init__(self, log_level=logging.INFO):
+        super().__init__("soc_devicetree_exporter")
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(log_level)
 
-    def generate(self):
-        """Generate SoC devicetree export"""
+    def generate(self, soc, periph_mappings):
+        """Generate SoC devicetree export
+
+        :param soc: SoC to generate for
+        :type soc: .soc.SoC
+        :param periph_mappings: List of peripherals with mappings to use on them
+        :type periph_mappings: list
+        """
 
         def generate_soc(soc):
             def generate_memory_regions(soc):
@@ -79,7 +80,7 @@ class SoCDevicetreeExporter(FileExporter):
 
         devicetree_writer = DevicetreeWriter()
 
-        soc_node = generate_soc(self.soc)
+        soc_node = generate_soc(soc)
         devicetree_writer.add_node(soc_node)
 
         self.logger.info(devicetree_writer.write())

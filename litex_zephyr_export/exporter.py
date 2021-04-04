@@ -2,17 +2,22 @@
 
 import logging
 
+from termcolor import colored
+
 logging.basicConfig(level=logging.INFO)
 
 
 class Exporter:
     """Export SoC by exporting to a set of target files
 
+    :param soc: SoC to export
+    :type soc: .soc.SoC
     :param log_level: Logging level to use
     :type log_level: int
     """
 
-    def __init__(self, log_level=logging.INFO):
+    def __init__(self, soc, log_level=logging.INFO):
+        self.soc = soc
         self._file_exporters = []
         self._mappings = {}
 
@@ -40,6 +45,19 @@ class Exporter:
         """Export using all registered exporters"""
         self.logger.info("Starting to export to files")
 
+        # Filter applicable mappings
+        periph_mappings = []
+        for periph in self.soc.peripherals:
+            if periph.name in self._mappings:
+                mapping = self._mappings[periph.name]
+                periph_mappings.append((periph, mapping))
+                self.logger.debug(
+                    "Using mapping %s for peripheral %s",
+                    colored(mapping.name, attrs=["underline"]),
+                    colored(periph.name, "green", attrs=["underline"]),
+                )
+
+        # Run individual file exporters
         for (i, file_exporter) in enumerate(self._file_exporters):
             self.logger.info(
                 "[%d/%d] Now exporting with %s",
@@ -47,4 +65,4 @@ class Exporter:
                 len(self._file_exporters),
                 file_exporter.name,
             )
-            file_exporter.generate()
+            file_exporter.generate(self.soc, periph_mappings)

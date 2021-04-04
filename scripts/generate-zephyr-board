@@ -9,6 +9,7 @@ import sys
 
 from litex_zephyr_export.exporter import Exporter
 from litex_zephyr_export.file_exporter import SoCDevicetreeExporter
+from litex_zephyr_export.mapping import Mapping
 from litex_zephyr_export.svd_parser import SvdParser
 
 SVD_PATH = "csr.svd"
@@ -47,8 +48,10 @@ def main():
     try:
         soc = parser.parse_file(SVD_PATH)
 
-        exporter = Exporter(log_level=args["log_level"])
-        exporter.add_file_exporter(SoCDevicetreeExporter(soc, args["log_level"]))
+        exporter = Exporter(soc, log_level=args["log_level"])
+        exporter.add_file_exporter(SoCDevicetreeExporter(args["log_level"]))
+        exporter.add_mapping("LEDS", Mapping("leds"))
+        exporter.add_mapping("TIMER0", Mapping("timer"))
 
         exporter.export()
 
