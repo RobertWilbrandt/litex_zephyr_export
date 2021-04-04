@@ -26,6 +26,7 @@ class SoC:
         self.logger.setLevel(log_level)
 
         self.peripherals = []
+        self.constants = {}
 
         self.rom = None
         self.main_ram = None
@@ -71,6 +72,19 @@ class SoC:
             colored(f"0x{memory_region.base_addr:08x}", attrs=["bold"]),
             colored(f"0x{memory_region.size:x}", attrs=["bold"]),
         )
+
+    def add_constant(self, constant, value):
+        """Add a constant to this SoC configuration
+
+        :param constant: Name of the constant
+        :type constant: str
+        :param value: Value of the constant
+        :type value: str
+        """
+        self.logger.debug(
+            "Added constant %s = %s", colored(constant, attrs=["underline"]), value
+        )
+        self.constants[constant] = value
 
 
 class Peripheral:

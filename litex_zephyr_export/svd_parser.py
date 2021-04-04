@@ -89,11 +89,9 @@ class SvdParser:
             # Parse constants
             constants = vendor_extensions.find("constants")
             for constant in constants.findall("constant"):
-                self.logger.debug(
-                    "Found constant %s=%s",
-                    colored(constant.get("name"), attrs=["underline"]),
-                    constant.get("value"),
-                )
+                name = constant.get("name")
+                value = constant.get("value")
+                result.add_constant(name, value)
 
             # Parse memory regions
             memory_regions = element_get_required_child(
