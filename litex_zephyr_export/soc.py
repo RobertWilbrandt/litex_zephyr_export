@@ -23,7 +23,11 @@ class SoC:
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.peripherals = []
-        self.memory_regions = []
+
+        self.rom = None
+        self.main_ram = None
+        self.csr = None
+        self.other_memory_regions = []
 
     def add_peripheral(self, peripheral):
         """Add a peripheral to this SoC configuration
@@ -43,66 +47,26 @@ class SoC:
         :param memory_region: Memory region to be added
         :type memory_region: MemoryRegion
         """
+        if memory_region.name == "ROM":
+            self.rom = memory_region
+            region_desc = "rom"
+        elif memory_region.name == "MAIN_RAM":
+            self.main_ram = memory_region
+            region_desc = "main_ram"
+        elif memory_region.name == "CSR":
+            self.csr = memory_region
+            region_desc = "csr"
+        else:
+            self.other_memory_regions.append(memory_region)
+            region_desc = "other"
+
         self.logger.info(
-            "Added memory region %s at %s of size %s",
+            "Added %s memory region %s at %s of size %s",
+            region_desc,
             colored(memory_region.name, "blue", attrs=["underline"]),
             colored(f"0x{memory_region.base_addr:08x}", attrs=["bold"]),
             colored(f"0x{memory_region.size:x}", attrs=["bold"]),
         )
-        self.memory_regions.append(memory_region)
-
-    def get_main_memory_region(self):
-        """Get the main memory region to load the application to
-
-        This region is the MAIN_RAM memory region
-
-        :return: Main memory region
-        :rtype: MemoryRegion
-        :raise RuntimeError: If the main memory configuration is invalid
-        """
-        main_memory_regions = [
-            mr for mr in self.memory_regions if mr.name == "MAIN_RAM"
-        ]
-
-        if len(main_memory_regions) == 0:
-            raise RuntimeError("Could not find required memory section MAIN_RAM")
-        if len(main_memory_regions) > 1:
-            raise RuntimeError("Found multiple memory sections MAIN_RAM")
-
-        return main_memory_regions[0]
-
-    def get_usable_memory_regions(self):
-        """Gets all reasonably user-usable memory regions
-
-        This will filter out the following sections:
-        - ROM
-        - MAIN_RAM
-        - CSR
-
-        :return: Reasonably user-usable memory regions
-        :rtype: list
-        """
-        return [
-            mr
-            for mr in self.memory_regions
-            if mr.name not in ["ROM", "MAIN_RAM", "CSR"]
-        ]
-
-    def get_csr_base_addr(self):
-        """Get the CSR base address
-
-        :return: Base address of CSRs
-        :rtype: int
-        :raise RuntimeError: If the CSR memory region definition is invalid
-        """
-        csr_memory_regions = [mr for mr in self.memory_regions if mr.name == "CSR"]
-
-        if len(csr_memory_regions) == 0:
-            raise RuntimeError("Could not find required memory section CSR")
-        if len(csr_memory_regions) > 1:
-            raise RuntimeError("Found multiple memory regions CSR")
-
-        return csr_memory_regions[0].base_addr
 
 
 class Peripheral:
