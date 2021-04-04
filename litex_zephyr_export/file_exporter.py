@@ -9,11 +9,14 @@ logging.basicConfig(level=logging.INFO)
 class FileExporter:
     """Base class for exporting completely parsed SoC definitions
 
+    :param name: Name of this file exporter
+    :type name: str
     :param soc: Parsed SoC configuration
     :type soc: soc.SoC
     """
 
-    def __init__(self, soc):
+    def __init__(self, name, soc):
+        self.name = name
         self.soc = soc
 
 
@@ -27,7 +30,7 @@ class SoCDevicetreeExporter(FileExporter):
     """
 
     def __init__(self, soc, log_level=logging.INFO):
-        super().__init__(soc)
+        super().__init__("soc_devicetree_exporter", soc)
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(log_level)
