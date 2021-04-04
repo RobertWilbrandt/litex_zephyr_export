@@ -14,13 +14,16 @@ class SoC:
     :type name: str
     :param vendor: Vendor name
     :type vendor: str
+    :param log_level: Logging level to use
+    :type log_level: int
     """
 
-    def __init__(self, name, vendor):
+    def __init__(self, name, vendor, log_level=logging.INFO):
         self.name = name
         self.vendor = vendor
 
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.setLevel(log_level)
 
         self.peripherals = []
 

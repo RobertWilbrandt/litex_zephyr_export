@@ -2,6 +2,8 @@
 # pylint: disable=invalid-name
 """Generate a zephyr board from a litex export"""
 
+import argparse
+import logging
 import os
 import sys
 
@@ -12,15 +14,41 @@ from litex_zephyr_export.svd_parser import SvdParser
 SVD_PATH = "csr.svd"
 
 
+def parse_args():
+    """Parse cli arguments
+
+    :return: Dictionary containing parsed arguments
+    :rtype: dict
+    """
+    parser = argparse.ArgumentParser(
+        description="Generate a zephyr board from a litex export"
+    )
+
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Print verbose logging output"
+    )
+
+    args = parser.parse_args()
+
+    result = {"log_level": logging.INFO}
+
+    if args.verbose:
+        result["log_level"] = logging.DEBUG
+
+    return result
+
+
 def main():
     """Script entry point"""
-    parser = SvdParser()
+    args = parse_args()
+
+    parser = SvdParser(args["log_level"])
 
     try:
         soc = parser.parse_file(SVD_PATH)
 
         exporter = Exporter()
-        exporter.add_file_exporter(SoCDevicetreeExporter(soc))
+        exporter.add_file_exporter(SoCDevicetreeExporter(soc, args["log_level"]))
 
         exporter.export()
 

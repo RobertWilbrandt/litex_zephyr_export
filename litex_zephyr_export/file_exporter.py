@@ -22,12 +22,15 @@ class SoCDevicetreeExporter(FileExporter):
 
     :param soc: Parsed SoC configuration
     :type soc: soc.SoC
+    :param log_level: Logging level to use
+    :type log_level: int
     """
 
-    def __init__(self, soc):
+    def __init__(self, soc, log_level=logging.INFO):
         super().__init__(soc)
 
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.setLevel(log_level)
 
     def generate(self):
         """Generate SoC devicetree export"""

@@ -46,10 +46,17 @@ def parse_hex(text):
 
 
 class SvdParser:
-    """Parse a litex export in SVD format"""
+    """Parse a litex export in SVD format
 
-    def __init__(self):
+    :param log_level: Logging level to use
+    :type log_level: int
+    """
+
+    def __init__(self, log_level=logging.INFO):
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.log_level = log_level
+        self.logger.setLevel(log_level)
+
         self.logger.info("Creating SVD parser...")
 
     def parse(self, svd):
@@ -66,7 +73,7 @@ class SvdParser:
             self.logger.info("Parsing SVD from xml")
             root = xml.etree.ElementTree.fromstring(svd)
 
-            result = parse_device(root)
+            result = self.parse_device(root)
 
             # Parse peripherals
             peripherals = root.find("peripherals")
@@ -78,7 +85,7 @@ class SvdParser:
             # Parse constants
             constants = vendor_extensions.find("constants")
             for constant in constants.findall("constant"):
-                self.logger.info(
+                self.logger.debug(
                     "Found constant %s=%s",
                     colored(constant.get("name"), attrs=["underline"]),
                     constant.get("value"),
@@ -118,31 +125,30 @@ class SvdParser:
             svd = svd_file.read()
             return self.parse(svd)
 
+    def parse_device(self, device_node):
+        """Parse the SVD device tag and create a SoC configuration from it
 
-def parse_device(device_node):
-    """Parse the SVD device tag and create a SoC configuration from it
+        :param device_node: SVD device node
+        :rtype device_node: xml.etree.ElementTree.Element
 
-    :param device_node: SVD device node
-    :rtype device_node: xml.etree.ElementTree.Element
-
-    :return: SoC containing device-specific information
-    :rtype: SoC
-    :raise RuntimeError: If the device_node content is not valid
-    """
-    vendor_node = device_node.find("vendor")
-    if vendor_node is None:
-        vendor_id_node = device_node.find("vendorID")
-        if vendor_id_node is None:
-            vendor = "custom"
+        :return: SoC containing device-specific information
+        :rtype: SoC
+        :raise RuntimeError: If the device_node content is not valid
+        """
+        vendor_node = device_node.find("vendor")
+        if vendor_node is None:
+            vendor_id_node = device_node.find("vendorID")
+            if vendor_id_node is None:
+                vendor = "custom"
+            else:
+                vendor = vendor_id_node.text
         else:
-            vendor = vendor_id_node.text
-    else:
-        vendor = vendor_node.text
+            vendor = vendor_node.text
 
-    name = element_get_required_child(device_node, "name").text
+        name = element_get_required_child(device_node, "name").text
 
-    series = device_node.find("series")
-    if series is not None:
-        name = series.text + "_" + name
+        series = device_node.find("series")
+        if series is not None:
+            name = series.text + "_" + name
 
-    return SoC(name=name, vendor=vendor)
+        return SoC(name=name, vendor=vendor, log_level=self.log_level)
