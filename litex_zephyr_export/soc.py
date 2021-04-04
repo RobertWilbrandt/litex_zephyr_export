@@ -44,6 +44,14 @@ class SoC:
             colored(peripheral.name, "green", attrs=["underline"]),
             colored(f"0x{peripheral.base_addr:08x}", attrs=["bold"]),
         )
+
+        for (int_name, int_value) in peripheral.interrupts:
+            self.logger.debug(
+                "Uses interrupt %s (%s)",
+                colored(str(int_value), "red"),
+                colored(int_name, "red"),
+            )
+
         self.peripherals.append(peripheral)
 
     def add_memory_region(self, memory_region):
@@ -94,11 +102,14 @@ class Peripheral:
     :type name: str
     :param base_addr: Lowest address reserved or used by the peripheral
     :type base_addr: int
+    :param interrupts: Names and values of interrupts assigned to this peripheral
+    :type interrupts: list
     """
 
-    def __init__(self, name, base_addr):
+    def __init__(self, name, base_addr, interrupts):
         self.name = name
         self.base_addr = base_addr
+        self.interrupts = interrupts
 
 
 class MemoryRegion:

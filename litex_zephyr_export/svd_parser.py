@@ -82,7 +82,16 @@ class SvdParser:
                 base_addr = parse_hex(
                     element_get_required_child(periph, "baseAddress").text
                 )
-                result.add_peripheral(Peripheral(name, base_addr))
+
+                interrupts = []
+                for interrupt in periph.findall("interrupt"):
+                    name = element_get_required_child(interrupt, "name").text
+                    value = element_get_required_child(interrupt, "value").text
+                    interrupts.append((name, value))
+
+                result.add_peripheral(
+                    Peripheral(name=name, base_addr=base_addr, interrupts=interrupts)
+                )
 
             vendor_extensions = root.find("vendorExtensions")
 
