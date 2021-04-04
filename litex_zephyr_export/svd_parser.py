@@ -94,7 +94,7 @@ class SvdParser:
                     element_get_required_child(memory_region, "baseAddress").text
                 )
                 size = parse_hex(element_get_required_child(memory_region, "size").text)
-                result.memory_regions.append(MemoryRegion(name, base_addr, size))
+                result.add_memory_region(MemoryRegion(name, base_addr, size))
 
             return result
 

@@ -32,9 +32,24 @@ class SoC:
         :type peripheral: Peripheral
         """
         self.logger.info(
-            "Addded peripheral %s", colored(peripheral.name, attrs=["underline"])
+            "Addded peripheral %s",
+            colored(peripheral.name, "green", attrs=["underline"]),
         )
         self.peripherals.append(peripheral)
+
+    def add_memory_region(self, memory_region):
+        """Add a memory region to this SoC configuration
+
+        :param memory_region: Memory region to be added
+        :type memory_region: MemoryRegion
+        """
+        self.logger.info(
+            "Added memory region %s at %s of size %s",
+            colored(memory_region.name, "blue", attrs=["underline"]),
+            colored(f"0x{memory_region.base_addr:08x}", attrs=["bold"]),
+            colored(f"0x{memory_region.size:x}", attrs=["bold"]),
+        )
+        self.memory_regions.append(memory_region)
 
     def get_main_memory_region(self):
         """Get the main memory region to load the application to
